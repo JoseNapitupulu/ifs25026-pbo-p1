@@ -5,72 +5,102 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class App {
+    private static final String END_MARKER = "---";
+
     public static void main(String[] args) throws FileNotFoundException {
         Scanner scanner = new Scanner(new File("input.txt"));
-
-        Map<Integer, Integer> freq = new HashMap<>();
-        while (scanner.hasNextLine()) {
-            String baris = scanner.nextLine().trim();
-            if (baris.equals("---")) {
-                break;
-            }
-            if (baris.isEmpty()) {
-                continue;
-            }
-            int nilai;
-            try {
-                nilai = Integer.parseInt(baris);
-            } catch (NumberFormatException e) {
-                continue;
-            }
-            Integer f = freq.get(nilai);
-            freq.put(nilai, f == null ? 1 : f + 1);
-        }
+        Map<Integer, Integer> frequencies = readFrequencies(scanner);
         scanner.close();
 
-        if (freq.isEmpty()) {
+        if (frequencies.isEmpty()) {
             return;
         }
 
-        int tertinggi = Integer.MIN_VALUE;
-        int terendah = Integer.MAX_VALUE;
-        int terbanyak = 0, terbanyakFreq = Integer.MIN_VALUE;
-        int tersedikit = 0, tersedikitFreq = Integer.MAX_VALUE;
-        int jumlahTertinggi = 0, jumlahTertinggiProd = Integer.MIN_VALUE;
-        int jumlahTerendah = 0, jumlahTerendahProd = Integer.MAX_VALUE;
+        printStatistics(frequencies);
+    }
 
-        for (Map.Entry<Integer, Integer> e : freq.entrySet()) {
-            int nilai = e.getKey();
-            int f = e.getValue();
-            int hasil = nilai * f;
-
-            if (nilai > tertinggi) tertinggi = nilai;
-            if (nilai < terendah) terendah = nilai;
-
-            if (f > terbanyakFreq || (f == terbanyakFreq && nilai > terbanyak)) {
-                terbanyak = nilai;
-                terbanyakFreq = f;
+    private static Map<Integer, Integer> readFrequencies(Scanner scanner) {
+        Map<Integer, Integer> frequencies = new HashMap<>();
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine().trim();
+            if (line.equals(END_MARKER)) {
+                break;
             }
-            if (f < tersedikitFreq || (f == tersedikitFreq && nilai < tersedikit)) {
-                tersedikit = nilai;
-                tersedikitFreq = f;
-            }
+            addValue(frequencies, line);
+        }
+        return frequencies;
+    }
 
-            if (hasil > jumlahTertinggiProd || (hasil == jumlahTertinggiProd && nilai > jumlahTertinggi)) {
-                jumlahTertinggi = nilai;
-                jumlahTertinggiProd = hasil;
-            }
-            if (hasil < jumlahTerendahProd || (hasil == jumlahTerendahProd && nilai < jumlahTerendah)) {
-                jumlahTerendah = nilai;
-                jumlahTerendahProd = hasil;
+    private static void addValue(Map<Integer, Integer> frequencies, String line) {
+        if (line.isEmpty()) {
+            return;
+        }
+        try {
+            int value = Integer.parseInt(line);
+            frequencies.put(value, frequencies.getOrDefault(value, 0) + 1);
+        } catch (NumberFormatException ignored) {
+            // Invalid values are ignored according to the input contract.
+        }
+    }
+
+    private static void printStatistics(Map<Integer, Integer> frequencies) {
+        int highest = findHighest(frequencies);
+        int lowest = findLowest(frequencies);
+        int mostFrequent = findByFrequency(frequencies, true);
+        int leastFrequent = findByFrequency(frequencies, false);
+        int highestProduct = findByProduct(frequencies, true);
+        int lowestProduct = findByProduct(frequencies, false);
+
+        System.out.println("Tertinggi: " + highest);
+        System.out.println("Terendah: " + lowest);
+        System.out.println("Terbanyak: " + mostFrequent + " (" + frequencies.get(mostFrequent) + "x)");
+        System.out.println("Tersedikit: " + leastFrequent + " (" + frequencies.get(leastFrequent) + "x)");
+        System.out.println("Jumlah Tertinggi: " + formatProduct(highestProduct, frequencies));
+        System.out.println("Jumlah Terendah: " + formatProduct(lowestProduct, frequencies));
+    }
+
+    private static int findHighest(Map<Integer, Integer> frequencies) {
+        return frequencies.keySet().stream().max(Integer::compareTo).get();
+    }
+
+    private static int findLowest(Map<Integer, Integer> frequencies) {
+        return frequencies.keySet().stream().min(Integer::compareTo).get();
+    }
+
+    private static int findByFrequency(Map<Integer, Integer> frequencies, boolean highest) {
+        int selectedValue = 0;
+        int selectedFrequency = highest ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+        for (Map.Entry<Integer, Integer> entry : frequencies.entrySet()) {
+            int value = entry.getKey();
+            int frequency = entry.getValue();
+            boolean betterFrequency = highest ? frequency > selectedFrequency : frequency < selectedFrequency;
+            boolean sameFrequency = frequency == selectedFrequency;
+            if (betterFrequency || (sameFrequency && (highest ? value > selectedValue : value < selectedValue))) {
+                selectedValue = value;
+                selectedFrequency = frequency;
             }
         }
+        return selectedValue;
+    }
 
-        System.out.println("Tertinggi: " + tertinggi);
-        System.out.println("Terendah: " + terendah);
-        System.out.println("Terbanyak: " + terbanyak + " (" + terbanyakFreq + "x)");
-        System.out.println("Tersedikit: " + tersedikit + " (" + tersedikitFreq + "x)");
-        System.out.println("Jumlah Tertinggi: " + jumlahTertinggi + " * " + freq.get(jumlahTertinggi) + " = " + jumlahTertinggiProd);
-        System.out.println("Jumlah Terendah: " + jumlahTerendah + " * " + freq.get(jumlahTerendah) + " = " + jumlahTerendahProd);
+    private static int findByProduct(Map<Integer, Integer> frequencies, boolean highest) {
+        int selectedValue = 0;
+        int selectedProduct = highest ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+        for (Map.Entry<Integer, Integer> entry : frequencies.entrySet()) {
+            int value = entry.getKey();
+            int product = value * entry.getValue();
+            boolean betterProduct = highest ? product > selectedProduct : product < selectedProduct;
+            boolean sameProduct = product == selectedProduct;
+            if (betterProduct || (sameProduct && (highest ? value > selectedValue : value < selectedValue))) {
+                selectedValue = value;
+                selectedProduct = product;
+            }
+        }
+        return selectedValue;
+    }
+
+    private static String formatProduct(int value, Map<Integer, Integer> frequencies) {
+        int frequency = frequencies.get(value);
+        return value + " * " + frequency + " = " + value * frequency;
     }
 }

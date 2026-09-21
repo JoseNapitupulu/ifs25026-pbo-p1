@@ -1,63 +1,51 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 public class App {
+    private static final int NIM_LENGTH = 8;
+    private static final int PREFIX_LENGTH = 3;
+    private static final Map<String, String> PROGRAM_STUDIES = createProgramStudies();
+
     public static void main(String[] args) throws FileNotFoundException {
         Scanner scanner = new Scanner(new File("input.txt"));
-        //Scanner scanner = new Scanner (System.in);
-
-        String nim = scanner.nextLine().trim();
+        String nim = readNim(scanner);
         scanner.close();
 
-        if (nim.length() != 8) {
+        if (!hasValidLength(nim)) {
             System.out.println("NIM harus 8 karakter");
             return;
         }
 
-        String prefix = nim.substring(0, 3);
-        String prodi;
-        switch (prefix) {
-            case "11S":
-                prodi = "Sarjana Informatika";
-                break;
-            case "12S":
-                prodi = "Sarjana Sistem Informasi";
-                break;
-            case "13S":
-                prodi = "Sarjana Teknik Elektro";
-                break;
-            case "21S":
-                prodi = "Sarjana Manajemen Rekayasa";
-                break;
-            case "22S":
-                prodi = "Sarjana Teknik Metalurgi";
-                break;
-            case "31S":
-                prodi = "Sarjana Teknik Bioproses";
-                break;
-            case "32S":
-                prodi = "Sarjana Bioteknologi";
-                break;
-            case "114":
-                prodi = "Diploma 4 Teknologi Rekayasa Perangkat Lunak";
-                break;
-            case "113":
-                prodi = "Diploma 3 Teknologi Informasi";
-                break;
-            case "133":
-                prodi = "Diploma 3 Teknologi Komputer";
-                break;
-            default:
-                System.out.println("Kode tidak tersedia");
-                return;
+        String prodi = PROGRAM_STUDIES.get(nim.substring(0, PREFIX_LENGTH));
+        if (prodi == null) {
+            System.out.println("Kode tidak tersedia");
+            return;
         }
 
-        if (!nim.substring(3).matches("\\d{5}")) {
+        if (!hasValidNumericPart(nim)) {
             System.out.println("Data NIM tidak valid");
             return;
         }
 
+        printInformation(nim, prodi);
+    }
+
+    private static String readNim(Scanner scanner) {
+        return scanner.hasNextLine() ? scanner.nextLine().trim() : "";
+    }
+
+    private static boolean hasValidLength(String nim) {
+        return nim.length() == NIM_LENGTH;
+    }
+
+    private static boolean hasValidNumericPart(String nim) {
+        return nim.substring(PREFIX_LENGTH).matches("\\d{5}");
+    }
+
+    private static void printInformation(String nim, String prodi) {
         int angkatan = Integer.parseInt("20" + nim.substring(3, 5));
         int urutan = Integer.parseInt(nim.substring(5, 8));
 
@@ -65,5 +53,20 @@ public class App {
         System.out.println(">> Program Studi: " + prodi);
         System.out.println(">> Angkatan: " + angkatan);
         System.out.println(">> Urutan: " + urutan);
+    }
+
+    private static Map<String, String> createProgramStudies() {
+        Map<String, String> studies = new HashMap<>();
+        studies.put("11S", "Sarjana Informatika");
+        studies.put("12S", "Sarjana Sistem Informasi");
+        studies.put("13S", "Sarjana Teknik Elektro");
+        studies.put("21S", "Sarjana Manajemen Rekayasa");
+        studies.put("22S", "Sarjana Teknik Metalurgi");
+        studies.put("31S", "Sarjana Teknik Bioproses");
+        studies.put("32S", "Sarjana Bioteknologi");
+        studies.put("114", "Diploma 4 Teknologi Rekayasa Perangkat Lunak");
+        studies.put("113", "Diploma 3 Teknologi Informasi");
+        studies.put("133", "Diploma 3 Teknologi Komputer");
+        return studies;
     }
 }
