@@ -7,8 +7,14 @@ import java.util.Scanner;
 public class App {
     private static final String END_MARKER = "---";
 
-    public static void main(String[] args) throws FileNotFoundException {
-        Scanner scanner = new Scanner(new File("input.txt"));
+    public static void main(String[] args) {
+        Scanner scanner;
+        try {
+            scanner = new Scanner(new File("input.txt"));
+        } catch (FileNotFoundException e) {
+            System.out.println("File input.txt tidak dapat dibaca");
+            return;
+        }
         Map<Integer, Integer> frequencies = readFrequencies(scanner);
         scanner.close();
 
@@ -85,10 +91,10 @@ public class App {
 
     private static int findByProduct(Map<Integer, Integer> frequencies, boolean highest) {
         int selectedValue = 0;
-        int selectedProduct = highest ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+        long selectedProduct = highest ? Long.MIN_VALUE : Long.MAX_VALUE;
         for (Map.Entry<Integer, Integer> entry : frequencies.entrySet()) {
             int value = entry.getKey();
-            int product = value * entry.getValue();
+            long product = (long) value * entry.getValue();
             boolean betterProduct = highest ? product > selectedProduct : product < selectedProduct;
             boolean sameProduct = product == selectedProduct;
             if (betterProduct || (sameProduct && (highest ? value > selectedValue : value < selectedValue))) {

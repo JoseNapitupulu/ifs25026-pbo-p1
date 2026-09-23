@@ -9,8 +9,14 @@ public class App {
     private static final int PREFIX_LENGTH = 3;
     private static final Map<String, String> PROGRAM_STUDIES = createProgramStudies();
 
-    public static void main(String[] args) throws FileNotFoundException {
-        Scanner scanner = new Scanner(new File("input.txt"));
+    public static void main(String[] args) {
+        Scanner scanner;
+        try {
+            scanner = new Scanner(new File("input.txt"));
+        } catch (FileNotFoundException e) {
+            System.out.println("File input.txt tidak dapat dibaca");
+            return;
+        }
         String nim = readNim(scanner);
         scanner.close();
 

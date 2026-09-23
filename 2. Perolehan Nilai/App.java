@@ -9,8 +9,14 @@ public class App {
     private static final String END_MARKER = "---";
     private static final String INVALID_DATA = "Data tidak valid. Silahkan menggunakan format: Simbol|Bobot|Perolehan-Nilai";
 
-    public static void main(String[] args) throws FileNotFoundException {
-        Scanner scanner = new Scanner(new File("input.txt"));
+    public static void main(String[] args) {
+        Scanner scanner;
+        try {
+            scanner = new Scanner(new File("input.txt"));
+        } catch (FileNotFoundException e) {
+            System.out.println("File input.txt tidak dapat dibaca");
+            return;
+        }
 
         String[] symbols = {"PA", "T", "K", "P", "UTS", "UAS"};
         String[] names = {"Partisipatif", "Tugas", "Kuis", "Proyek", "UTS", "UAS"};

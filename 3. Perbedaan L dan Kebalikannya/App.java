@@ -5,21 +5,52 @@ import java.util.Scanner;
 public class App {
     private static final int MIN_MATRIX_SIZE_WITH_L = 3;
 
-    public static void main(String[] args) throws FileNotFoundException {
-        Scanner scanner = new Scanner(new File("input.txt"));
+    public static void main(String[] args) {
+        Scanner scanner;
+        try {
+            scanner = new Scanner(new File("input.txt"));
+        } catch (FileNotFoundException e) {
+            System.out.println("File input.txt tidak dapat dibaca");
+            return;
+        }
         int[][] matrix = readMatrix(scanner);
         scanner.close();
 
+        if (matrix == null) {
+            System.out.println("Data matriks tidak valid");
+            return;
+        }
         printResults(matrix);
     }
 
     private static int[][] readMatrix(Scanner scanner) {
-        int size = Integer.parseInt(scanner.nextLine().trim());
+        if (!scanner.hasNextLine()) {
+            return null;
+        }
+        int size;
+        try {
+            size = Integer.parseInt(scanner.nextLine().trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
+        if (size <= 0) {
+            return null;
+        }
         int[][] matrix = new int[size][size];
         for (int row = 0; row < size; row++) {
+            if (!scanner.hasNextLine()) {
+                return null;
+            }
             String[] values = scanner.nextLine().trim().split("\\s+");
+            if (values.length != size) {
+                return null;
+            }
             for (int column = 0; column < size; column++) {
-                matrix[row][column] = Integer.parseInt(values[column]);
+                try {
+                    matrix[row][column] = Integer.parseInt(values[column]);
+                } catch (NumberFormatException e) {
+                    return null;
+                }
             }
         }
         return matrix;

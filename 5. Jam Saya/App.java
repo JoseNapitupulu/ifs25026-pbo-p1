@@ -7,8 +7,11 @@ public class App {
     private static final int MINUTES_PER_DAY = 24 * MINUTES_PER_HOUR;
     private static final String END_MARKER = "---";
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) {
         Scanner scanner = openInput();
+        if (scanner == null) {
+            return;
+        }
 
         if (!scanner.hasNextLine()) {
             scanner.close();
@@ -29,9 +32,17 @@ public class App {
         printResults(startTime, result);
     }
 
-    private static Scanner openInput() throws FileNotFoundException {
+    private static Scanner openInput() {
         File file = new File("input.txt");
-        return file.exists() ? new Scanner(file) : new Scanner(System.in);
+        if (!file.exists()) {
+            return new Scanner(System.in);
+        }
+        try {
+            return new Scanner(file);
+        } catch (FileNotFoundException e) {
+            System.out.println("File input.txt tidak dapat dibaca");
+            return null;
+        }
     }
 
     private static int[] parseTime(String value) {
@@ -52,9 +63,7 @@ public class App {
     }
 
     private static int[] processCommands(Scanner scanner, int startMinutes) {
-        int currentMinutes = startMinutes;
         int totalShift = 0;
-        int dayChanges = 0;
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine().trim();
             if (line.equals(END_MARKER)) {
@@ -65,12 +74,11 @@ public class App {
                 System.out.println("Perintah tidak valid");
                 continue;
             }
-            int rawMinutes = currentMinutes + shift;
-            dayChanges += Math.abs(Math.floorDiv(rawMinutes, MINUTES_PER_DAY));
-            currentMinutes = Math.floorMod(rawMinutes, MINUTES_PER_DAY);
             totalShift += shift;
         }
-        return new int[] {currentMinutes, totalShift, dayChanges};
+        int finalMinutes = startMinutes + totalShift;
+        int dayChanges = Math.abs(Math.floorDiv(finalMinutes, MINUTES_PER_DAY));
+        return new int[] {Math.floorMod(finalMinutes, MINUTES_PER_DAY), totalShift, dayChanges};
     }
 
     private static Integer parseCommand(String value) {
