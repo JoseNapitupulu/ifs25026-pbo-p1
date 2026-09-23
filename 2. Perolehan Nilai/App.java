@@ -21,7 +21,7 @@ public class App {
         String[] symbols = {"PA", "T", "K", "P", "UTS", "UAS"};
         String[] names = {"Partisipatif", "Tugas", "Kuis", "Proyek", "UTS", "UAS"};
         int[] weights = readWeights(scanner);
-        if (sum(weights) != REQUIRED_TOTAL_WEIGHT) {
+        if (weights == null || sum(weights) != REQUIRED_TOTAL_WEIGHT) {
             System.out.println("Total bobot harus 100");
             scanner.close();
             return;
@@ -30,16 +30,24 @@ public class App {
         int[][] totals = readScores(scanner, symbols);
         scanner.close();
 
-        printResults(names, weights, totals[0], totals[1]);
+        int[] percentages = calculatePercentages(totals[0], totals[1]);
+        double finalScore = calculateFinalScore(weights, percentages);
+        printResults(names, weights, percentages, finalScore);
     }
 
     private static int[] readWeights(Scanner scanner) {
         int[] weights = new int[COMPONENT_COUNT];
-        for (int i = 0; i < COMPONENT_COUNT && scanner.hasNextLine(); i++) {
+        for (int i = 0; i < COMPONENT_COUNT; i++) {
+            if (!scanner.hasNextLine()) {
+                return null;
+            }
             try {
                 weights[i] = Integer.parseInt(scanner.nextLine().trim());
+                if (weights[i] < 0) {
+                    return null;
+                }
             } catch (NumberFormatException e) {
-                weights[i] = 0;
+                return null;
             }
         }
         return weights;
@@ -93,25 +101,31 @@ public class App {
         return result;
     }
 
-    private static void printResults(String[] names, int[] weights, int[] totalWeights, int[] totalScores) {
-        double finalScore = calculateFinalScore(names, weights, totalWeights, totalScores);
+    private static int[] calculatePercentages(int[] totalWeights, int[] totalScores) {
+        int[] percentages = new int[COMPONENT_COUNT];
+        for (int i = 0; i < COMPONENT_COUNT; i++) {
+            percentages[i] = calculatePercentage(totalWeights[i], totalScores[i]);
+        }
+        return percentages;
+    }
+
+    private static double calculateFinalScore(int[] weights, int[] percentages) {
+        double result = 0;
+        for (int i = 0; i < COMPONENT_COUNT; i++) {
+            result += percentages[i] * weights[i] / 100.0;
+        }
+        return result;
+    }
+
+    private static void printResults(String[] names, int[] weights, int[] percentages, double finalScore) {
         StringBuilder output = new StringBuilder("Perolehan Nilai:\n");
         for (int i = 0; i < COMPONENT_COUNT; i++) {
-            int percentage = calculatePercentage(totalWeights[i], totalScores[i]);
-            double contribution = percentage * weights[i] / 100.0;
-            output.append(String.format(Locale.US, ">> %s: %d/100 (%.2f/%d)%n", names[i], percentage, contribution, weights[i]));
+            double contribution = percentages[i] * weights[i] / 100.0;
+            output.append(String.format(Locale.US, ">> %s: %d/100 (%.2f/%d)%n", names[i], percentages[i], contribution, weights[i]));
         }
         output.append(String.format(Locale.US, "%n>> Nilai Akhir: %.2f%n", finalScore));
         output.append(">> Grade: ").append(grade(finalScore)).append("\n");
         System.out.print(output);
-    }
-
-    private static double calculateFinalScore(String[] names, int[] weights, int[] totalWeights, int[] totalScores) {
-        double result = 0;
-        for (int i = 0; i < names.length; i++) {
-            result += calculatePercentage(totalWeights[i], totalScores[i]) * weights[i] / 100.0;
-        }
-        return result;
     }
 
     private static int calculatePercentage(int totalWeight, int totalScore) {

@@ -25,14 +25,14 @@ public class App {
             return;
         }
 
-        String prodi = PROGRAM_STUDIES.get(nim.substring(0, PREFIX_LENGTH));
-        if (prodi == null) {
-            System.out.println("Kode tidak tersedia");
+        if (!hasValidNumericPart(nim)) {
+            System.out.println("Data NIM tidak valid");
             return;
         }
 
-        if (!hasValidNumericPart(nim)) {
-            System.out.println("Data NIM tidak valid");
+        String prodi = PROGRAM_STUDIES.get(nim.substring(0, PREFIX_LENGTH));
+        if (prodi == null) {
+            System.out.println("Kode tidak tersedia");
             return;
         }
 

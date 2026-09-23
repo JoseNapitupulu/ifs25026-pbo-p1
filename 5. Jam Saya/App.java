@@ -77,8 +77,15 @@ public class App {
             totalShift += shift;
         }
         int finalMinutes = startMinutes + totalShift;
-        int dayChanges = Math.abs(Math.floorDiv(finalMinutes, MINUTES_PER_DAY));
+        int dayChanges = calculateDayChanges(startMinutes, totalShift);
         return new int[] {Math.floorMod(finalMinutes, MINUTES_PER_DAY), totalShift, dayChanges};
+    }
+
+    private static int calculateDayChanges(int startMinutes, int totalShift) {
+        // Hari dihitung dari perubahan indeks hari, bukan dari setiap perintah.
+        int startDay = Math.floorDiv(startMinutes, MINUTES_PER_DAY);
+        int finalDay = Math.floorDiv(startMinutes + totalShift, MINUTES_PER_DAY);
+        return Math.abs(finalDay - startDay);
     }
 
     private static Integer parseCommand(String value) {

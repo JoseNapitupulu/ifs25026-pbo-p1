@@ -81,6 +81,7 @@ public class App {
             int frequency = entry.getValue();
             boolean betterFrequency = highest ? frequency > selectedFrequency : frequency < selectedFrequency;
             boolean sameFrequency = frequency == selectedFrequency;
+            // Seri frekuensi memilih nilai terbesar untuk tertinggi dan terkecil untuk tersedikit.
             if (betterFrequency || (sameFrequency && (highest ? value > selectedValue : value < selectedValue))) {
                 selectedValue = value;
                 selectedFrequency = frequency;
@@ -97,6 +98,7 @@ public class App {
             long product = (long) value * entry.getValue();
             boolean betterProduct = highest ? product > selectedProduct : product < selectedProduct;
             boolean sameProduct = product == selectedProduct;
+            // Seri hasil kali memakai aturan nilai yang sama agar hasil tidak bergantung pada HashMap.
             if (betterProduct || (sameProduct && (highest ? value > selectedValue : value < selectedValue))) {
                 selectedValue = value;
                 selectedProduct = product;
