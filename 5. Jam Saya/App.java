@@ -34,9 +34,6 @@ public class App {
 
     private static Scanner openInput() {
         File file = new File("input.txt");
-        if (!file.exists()) {
-            return new Scanner(System.in);
-        }
         try {
             return new Scanner(file);
         } catch (FileNotFoundException e) {
